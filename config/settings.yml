@@ -1,7 +1,7 @@
 plugins:
-  replyto-individual_enabled:
+  replyto_individual_enabled:
     default: true
     client: true
-  replyto-individual_add_replyall_behaviour:
+  replyto_individual_cc:
     default: true
     client: true
