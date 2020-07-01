@@ -1,12 +1,14 @@
 # name: replyto-individual plugin
 # about: A plugin that allows exposure of the sender's email address for functionality
 #        similar to GNU/Mailman's Reply_Goes_To_List = Poster
-# version: 0.0.1
-# authors: Tarek Loubani <tarek@tarek.org>
+# version: 0.0.2
+# authors: Alan Schmitz <aschmitz@iastate.edu>, Tarek Loubani <tarek@tarek.org>
 # license: aGPLv3
+# url: https://github.com/alankeny/discourse-replyto-individual
 
 PLUGIN_NAME ||= "replyto-individual".freeze
 
+enabled_site_setting :replyto_individual_enabled
 
 after_initialize do
   Email::MessageBuilder.class_eval do
@@ -30,15 +32,16 @@ after_initialize do
       if allow_reply_by_email?
         result[ALLOW_REPLY_BY_EMAIL_HEADER] = true
         result['Reply-To'] = reply_by_email_address
-        if private_reply?
-          result['Reply-To'] = reply_by_email_address
-        else
-          p = Post.find_by_id @opts[:post_id]
-          result['Reply-To'] = "#{p.user.name} <#{p.user.email}>"
-          result['CC'] = reply_by_email_address
-        end
       else
         result['Reply-To'] = from_value
+      end
+
+      if SiteSetting.replyto_individual_enabled?
+        p = Post.find_by_id @opts[:post_id]
+        result['Reply-To'] = "#{p.user.name} <#{p.user.email}>"
+        if SiteSetting.replyto_individual_cc?
+          result['CC'] = reply_by_email_address
+        end
       end
 
       result.merge(Email::MessageBuilder.custom_headers(SiteSetting.email_custom_headers))
@@ -64,8 +67,8 @@ after_initialize do
           header_value('Reply-To').gsub!("%{reply_key}", reply_key)
       end
       if !header_value('CC').blank?
-      @message.header['CC'] =
-        header_value('CC').gsub!("%{reply_key}", reply_key)
+        @message.header['CC'] =
+          header_value('CC').gsub!("%{reply_key}", reply_key)
       end
     end
   end
