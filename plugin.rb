@@ -46,8 +46,6 @@ after_initialize do
             if SiteSetting.replyto_individual_cc?
               result['CC'] = reply_by_email_address
             end
-          else
-            return super
           end
         end
       end
