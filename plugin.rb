@@ -38,10 +38,13 @@ after_initialize do
 
       if SiteSetting.replyto_individual_enabled?
         p = Post.find_by_id @opts[:post_id]
-        result['Reply-To'] = "#{p.user.name} <#{p.user.email}>"
-        if SiteSetting.replyto_individual_cc?
-          result['CC'] = reply_by_email_address
-        end
+        if p
+          result['Reply-To'] = "#{p.user.name} <#{p.user.email}>"
+          if SiteSetting.replyto_individual_cc?
+            result['CC'] = reply_by_email_address
+          end
+        else
+          return super
       end
 
       result.merge(Email::MessageBuilder.custom_headers(SiteSetting.email_custom_headers))
