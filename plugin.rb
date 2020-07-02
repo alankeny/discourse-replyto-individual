@@ -45,6 +45,7 @@ after_initialize do
           end
         else
           return super
+        end
       end
 
       result.merge(Email::MessageBuilder.custom_headers(SiteSetting.email_custom_headers))
