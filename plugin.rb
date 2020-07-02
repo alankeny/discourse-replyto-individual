@@ -37,14 +37,14 @@ after_initialize do
       end
 
       if SiteSetting.replyto_individual_enabled?
-        p = Post.find_by_id @opts[:post_id]
-        if p
+        if private_reply?
+          result['Reply-To'] = reply_by_email_address
+        else
+          p = Post.find_by_id @opts[:post_id]
           result['Reply-To'] = "#{p.user.name} <#{p.user.email}>"
           if SiteSetting.replyto_individual_cc?
             result['CC'] = reply_by_email_address
           end
-        else
-          return super
         end
       end
 
